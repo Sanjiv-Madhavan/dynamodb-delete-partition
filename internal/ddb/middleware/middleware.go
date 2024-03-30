@@ -16,18 +16,18 @@ func NewMiddleware() *Middleware {
 
 	logger, err := cfg.Build()
 	if err != nil {
-		panic("failed to instantiate zap logger")
+		panic("failed to instantiate middleware")
 	}
 
 	// Example usage
-	logger.Info("Logging to stdout with Zap logger")
+	logger.Info("Logging to stdout with middleware")
 
 	return &Middleware{
 		log: logger,
 	}
 }
 
-// LogCLIRequest prints the provided information using the logger
+// LogHandler prints the provided information using the logger
 func (m *Middleware) LogHandler(ctx context.Context, msg string, args ...interface{}) {
 	m.log.Info(msg, convertToZapFields(args)...)
 }
