@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.27.8
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.8
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.30.5
+	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.27.0
 )

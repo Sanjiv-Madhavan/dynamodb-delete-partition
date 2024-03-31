@@ -7,5 +7,5 @@ import (
 )
 
 type TablePartitionDeleter interface {
-	DeleteTablePartition(ctx context.Context, dtpi models.DeleteTablePartitionInput) error
+	DeletePartition(ctx context.Context, dtpi models.DeleteTablePartitionInput) error
 }
