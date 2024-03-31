@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/google/uuid"
@@ -15,7 +15,9 @@ import (
 )
 
 func init() {
-
+	handler := slog.NewJSONHandler(os.Stdout, nil)
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
 }
 
 func main() {
@@ -33,11 +35,10 @@ func main() {
 		Use:   "delete-partition",
 		Short: "Delete a specific partition from a dynamoDB table",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), constants.ClientRequestID, uuid.New())
-
+			ctx := context.WithValue(context.Background(), constants.CliRequestId, uuid.New())
 			if tableName == "" || partitionValue == "" {
-				err := errors.New("Both 'table-name' and 'partition-value' are mandatory parameters")
-				middleware.LogError("Invalid tablename/partition-value", err)
+				slog.Info("Both 'table-name' and 'partition-value' are mandatory parameters.",
+					constants.LogRequestIdKey, ctx.Value(constants.CliRequestId))
 				os.Exit(1)
 			}
 
@@ -47,17 +48,27 @@ func main() {
 				var userConfirmation string
 				_, err := fmt.Scanln(&userConfirmation)
 				if err != nil {
-					middleware.LogFatal("Failed to read confirmation", err)
+					slog.Error("Failed to read user input for confirmation.",
+						constants.LogRequestIdKey, ctx.Value(constants.CliRequestId),
+						"error", err)
+					os.Exit(1)
 				}
 
-				if userConfirmation != "y" || userConfirmation != "Y" {
-					middleware.LogInfo("Delete request cancelled")
-					os.Exit(1)
+				middleware.LogHandler(ctx, "Logging User Input: ", userConfirmation)
+
+				if userConfirmation != "y" && userConfirmation != "Y" {
+					slog.Info("delete-partition request canceled.",
+						constants.LogRequestIdKey, ctx.Value(constants.CliRequestId))
+					return
 				}
 			}
 
-			middleware.LogHandler(ctx, "Received CLI Request", constants.ClientRequestID, ctx.Value(constants.ClientRequestID).(string),
-				"Table Name", tableName, "Partition Value", partitionValue)
+			slog.Info("ddbctl delete-partition cli parameters",
+				constants.LogRequestIdKey, ctx.Value(constants.CliRequestId),
+				"table-name", tableName,
+				"partition-value", partitionValue,
+				"endpoint-url", endpointURL,
+				"region", awsRegion)
 
 			deleteTablePartitionInput := models.DeleteTablePartitionInput{
 				TableName:      tableName,
@@ -68,19 +79,22 @@ func main() {
 
 			handler, err := handler.NewTablePartitionHandler(ctx, endpointURL, awsRegion)
 			if err != nil {
-				middleware.LogFatal("Failed to initialise handler for deletion", err)
+				slog.Error("Error while initializing Handler object",
+					constants.LogRequestIdKey, ctx.Value(constants.CliRequestId),
+					"error", err)
 				os.Exit(1)
 			}
 
 			err = handler.HandleTablePartitionDeletion(ctx, deleteTablePartitionInput)
 			if err != nil {
-				middleware.LogHandler(ctx, "Failed to delete partition",
-					constants.ClientRequestID, ":", constants.ClientRequestID, "\n err: ", err)
-				middleware.LogFatal("failed to delete partition: ", err)
+				slog.Error("Failed to delete-partition",
+					constants.LogRequestIdKey, ctx.Value(constants.CliRequestId),
+					"error", err)
+				os.Exit(1)
 			}
 
-			middleware.LogHandler(ctx, "Partition deleted successfully",
-				constants.ClientRequestID, ":", constants.ClientRequestID)
+			slog.Info("delete-partition request completed successfully.",
+				constants.LogRequestIdKey, ctx.Value(constants.CliRequestId))
 		},
 	}
 
