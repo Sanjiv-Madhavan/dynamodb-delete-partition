@@ -12,3 +12,5 @@ type TableKeySchema struct {
 	PartitionKey string
 	RangeKey     string
 }
+
+type RequestId string
