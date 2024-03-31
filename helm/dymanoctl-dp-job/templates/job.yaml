@@ -1,0 +1,24 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-dynamoctl-dp-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: dynamoctl-container
+        image: sanjivmadhavan/go-dynamoctl-delete-partition:latest
+        command: ["/dynamoctl", "delete-partition"]
+        args:
+          - "-t"
+          - "{{ .Values.dynamoctlDpJob.tableName }}"
+          - "-p"
+          - "{{ .Values.dynamoctlDpJob.partitionValue }}"
+          - "-e"
+          - "{{ .Values.dynamoctlDpJob.endpointURL }}"
+          - "-r"
+          - "{{ .Values.dynamoctlDpJob.awsRegion }}"
+          - "-s"
+        # Optionally, you can add environment variables here if needed
+      restartPolicy: Never

@@ -1,0 +1,5 @@
+dynamoctlDpJob:
+  tableName: "Orders"
+  partitionValue: "TESTTENANTID"
+  endpointURL: "http://aws-dynamodb-local.default.svc.cluster.local:8000"
+  awsRegion: "us-east-1"

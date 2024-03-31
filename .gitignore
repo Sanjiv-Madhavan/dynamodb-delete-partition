@@ -1,0 +1,4 @@
+bin
+*.out
+go.work
+
