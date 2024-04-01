@@ -25,3 +25,22 @@ $ ddbctl delete-partition --table-name <<table-name>> --partition-value <<partit
 $ # skip confirmation
 $ ddbctl delete-partition --table-name <<table-name>> --partition-value <<partition-value>> --endpoint-url <<optional-endpoint-url> --region <<optional-aws-region>> --skip-confirmation
 ```
+
+### Sample workflow
+- Create table
+```bash
+aws dynamodb create-table --table-name Orders --attribute-definitions AttributeName=orderId,AttributeType=S --key-schema AttributeName=orderId,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://localhost:8000 --region us-east-1
+```
+
+- Insert table item
+```bash
+aws dynamodb put-item \    --table-name Orders \                                                                                  
+    --item '{"orderId": {"S": "1"}, "productName": {"S": "Product A"}, "quantity": {"N": "2"}, "price": {"N": "10.99"}}' \
+    --endpoint-url http://localhost:8000 \
+    --region us-east-1
+```
+
+- Delete using dynamoctl extension
+```bash
+bin/dynamoctl delete-partition --table-name Orders --partition-value "1" --endpoint-url http://localhost:8000 --region us-east-1 --skip-confirmation 
+```
