@@ -44,3 +44,22 @@ aws dynamodb put-item \    --table-name Orders \
 ```bash
 bin/dynamoctl delete-partition --table-name Orders --partition-value "1" --endpoint-url http://localhost:8000 --region us-east-1 --skip-confirmation 
 ```
+
+### For my reference:
+#### commands used:
+
+- Create table
+```bash
+aws dynamodb create-table --table-name Orders --attribute-definitions AttributeName=orderId,AttributeType=S --key-schema AttributeName=orderId,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://localhost:8000 --region us-east-1
+```
+
+- insert into table
+```bash
+aws dynamodb put-item --table-name Orders --item '{"orderId": {"S": "1"}, "productName": {"S": "Product A"}, "quantity": {"N": "2"}, "price": {"N": "10.99"}}' --endpoint-url http://localhost:8000 --region us-east-1
+```
+
+- Delete partition 
+
+```
+- go build -o bin/dynamoctl ./cmd/main.go
+- bin/dynamoctl delete-partition --table-name Orders --partition-value "1" --endpoint-url http://localhost:8000 --region us-east-1 --skip-confirmation
